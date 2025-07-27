@@ -11,15 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Restore CSV from secret
-      run: echo "${{ secrets.ENCODED_CSV }}" | base64 -d > combined_statement.csv
-
-    - name: Confirm CSV file path
-      run: |
-        echo "Working directory: $(pwd)"
-        echo "CSV file location:"
-        ls -l combined_statement.csv
-
     - name: Checkout repository
       uses: actions/checkout@v4
 
