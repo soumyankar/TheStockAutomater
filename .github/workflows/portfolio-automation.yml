@@ -14,6 +14,11 @@ jobs:
     - name: Restore CSV from secret
       run: echo "${{ secrets.ENCODED_CSV }}" | base64 -d > combined_statement.csv
 
+    - name: Inspect CSV output
+      run: |
+        echo "CSV Head Preview:"
+        head -n 5 combined_statement.csv
+
     - name: Checkout repository
       uses: actions/checkout@v4
 
