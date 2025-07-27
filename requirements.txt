@@ -7,6 +7,6 @@ python-dotenv>=1.0.0
 beautifulsoup4>=4.12.0
 lxml>=4.9.0
 markdown
-
+yfinance
 # Add your specific dependencies here
 # perplexity-ai  # or whatever package you use for Perplexity API
