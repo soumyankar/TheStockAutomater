@@ -1,0 +1,71 @@
+name: Portfolio Automation Workflow
+
+on:
+  schedule:
+    # Run every day at 9:00 AM UTC (adjust timezone as needed)
+    - cron: '0 9 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  portfolio-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Create logs directory
+      run: mkdir -p logs
+
+    - name: Run portfolio automation
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
+        # Add your secrets here - set these in GitHub repository settings
+        PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: python portfolio_automation_fixed.py
+
+    - name: Upload logs as artifacts
+      uses: actions/upload-artifact@v3
+      if: always()  # Upload logs even if the workflow fails
+      with:
+        name: workflow-logs
+        path: logs/
+        retention-days: 30
+
+    - name: Upload exports as artifacts
+      uses: actions/upload-artifact@v3
+      if: success()  # Only upload if workflow succeeds
+      with:
+        name: portfolio-exports
+        path: exports/
+        retention-days: 7
+
+    - name: Commit and push changes (optional)
+      if: success()
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add exports/ logs/
+        git diff --staged --quiet || git commit -m "Portfolio analysis update $(date)"
+        git push

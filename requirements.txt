@@ -1,0 +1,12 @@
+# Portfolio automation dependencies
+requests>=2.31.0
+pandas>=2.0.0
+numpy>=1.24.0
+python-telegram-bot>=20.0
+python-dotenv>=1.0.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+markdown
+
+# Add your specific dependencies here
+# perplexity-ai  # or whatever package you use for Perplexity API
