@@ -9,7 +9,7 @@ on:
 jobs:
   portfolio-analysis:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Restore CSV from secret
       run: echo "${{ secrets.ENCODED_CSV }}" | base64 -d > combined_statement.csv
@@ -49,7 +49,7 @@ jobs:
       run: python portfolio_automation_fixed.py
 
     - name: Upload logs as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()  # Upload logs even if the workflow fails
       with:
         name: workflow-logs
@@ -57,18 +57,9 @@ jobs:
         retention-days: 30
 
     - name: Upload exports as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: success()  # Only upload if workflow succeeds
       with:
         name: portfolio-exports
         path: exports/
         retention-days: 7
-
-    - name: Commit and push changes (optional)
-      if: success()
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add exports/ logs/
-        git diff --staged --quiet || git commit -m "Portfolio analysis update $(date)"
-        git push
