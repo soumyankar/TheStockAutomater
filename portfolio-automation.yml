@@ -6,6 +6,11 @@ on:
     - cron: '0 9 * * *'
   workflow_dispatch:  # Allow manual triggering
 
+steps:
+  - name: Restore CSV from secret
+    run: echo "${{ secrets.ENCODED_CSV }}" | base64 -d > combined_statement.csv
+
+
 jobs:
   portfolio-analysis:
     runs-on: ubuntu-latest
