@@ -30,6 +30,8 @@ class PerplexityAnalyzer:
     def __init__(self):
         """Initialize the Perplexity analyzer with API credentials"""
         self.api_key = os.getenv('PERPLEXITY_API_KEY')
+        print(f"🔐 Loaded API Key: {self.api_key[:5]}***")
+
         if not self.api_key:
             raise ValueError("PERPLEXITY_API_KEY environment variable not found!")
 
