@@ -69,11 +69,3 @@ jobs:
         git add exports/ logs/
         git diff --staged --quiet || git commit -m "Portfolio analysis update $(date)"
         git push
-    
-    - name: Manual Trigger
-      # You may pin to the exact commit or the version.
-      # uses: benhamiltonpro/manual-trigger@17718624ddb91f8e75274b3f7bb45c9f2071d173
-      uses: benhamiltonpro/manual-trigger@v1.0.2
-      with:
-        # Run name that you can use for your workflow if triggers
-        RUN_NAME: manual-trigger # optional, default is run-workflow
