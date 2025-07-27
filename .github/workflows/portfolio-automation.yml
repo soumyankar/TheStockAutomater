@@ -51,8 +51,8 @@ jobs:
         PYTHONIOENCODING: utf-8
         PYTHONUTF8: 1
         PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
       run: |
         echo "----------------------------------------" | tee -a logs/workflow.log
         echo "📋 STEP 1/3: portfolio_analyzer.py" | tee -a logs/workflow.log
@@ -94,8 +94,8 @@ jobs:
         PYTHONIOENCODING: utf-8
         PYTHONUTF8: 1
         PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
       run: |
         echo "----------------------------------------" | tee -a logs/workflow.log
         echo "🤖 STEP 2/3: perplexity_analyzer.py" | tee -a logs/workflow.log
@@ -137,8 +137,8 @@ jobs:
         PYTHONIOENCODING: utf-8
         PYTHONUTF8: 1
         PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }}
       run: |
         echo "----------------------------------------" | tee -a logs/workflow.log
         echo "📱 STEP 3/3: portfolio_notifier.py" | tee -a logs/workflow.log
