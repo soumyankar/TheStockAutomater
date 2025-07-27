@@ -95,8 +95,9 @@ def get_correct_ticker_and_price(ticker):
         print(f"    ⚠️  Error fetching {ticker} ({yf_ticker}): {e}")
         return 0, 'EUR'
 
-def analyze_portfolio(csv_file='combined_statement.csv'):
+def analyze_portfolio():
     """Main portfolio analysis function"""
+    csv_file = os.path.join(os.path.dirname(__file__), "combined_statement.csv")
 
     print("🔄 Loading and processing Trading 212 statement...")
 
