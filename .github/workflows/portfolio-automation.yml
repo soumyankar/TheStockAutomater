@@ -9,11 +9,11 @@ on:
 jobs:
   portfolio-analysis:
     runs-on: ubuntu-latest
+    
     steps:
     - name: Restore CSV from secret
       run: echo "${{ secrets.ENCODED_CSV }}" | base64 -d > combined_statement.csv
-      
-    steps:
+
     - name: Checkout repository
       uses: actions/checkout@v4
 
