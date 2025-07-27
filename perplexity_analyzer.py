@@ -293,7 +293,6 @@ def main():
             logger.info("\\n" + "="*80)
             logger.info("🎯 PERPLEXITY AI ANALYSIS RESULT")
             logger.info("="*80)
-            print(analysis)
             logger.info("="*80)
 
             # Save analysis

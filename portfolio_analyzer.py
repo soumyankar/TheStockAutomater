@@ -97,14 +97,6 @@ def get_correct_ticker_and_price(ticker):
 
 def analyze_portfolio():
     """Main portfolio analysis function"""
-    current_dir = os.path.dirname(__file__)
-    print(f"📍 Current directory path: {current_dir}")
-    
-    print("📁 Files in the current directory:")
-    current_dir = os.path.dirname(__file__)
-    for filename in os.listdir(current_dir):
-        print("  •", filename)
-    
     csv_file = os.path.join(os.path.dirname(__file__), "combined_statement.csv")
 
     print("🔄 Loading and processing Trading 212 statement...")
