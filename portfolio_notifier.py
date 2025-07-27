@@ -120,6 +120,9 @@ def main():
     # Configuration - Replace with your actual values
     BOT_TOKEN =  os.getenv('BOT_TOKEN')  # Replace with your bot token
     CHAT_ID =  os.getenv('CHAT_ID')      # Replace with your chat ID
+    # Print only the first 6 characters, masking the rest
+    print("BOT_TOKEN preview:", BOT_TOKEN[:6] + "..." if BOT_TOKEN else "Not set")
+    print("CHAT_ID preview:", CHAT_ID[:6] + "..." if CHAT_ID else "Not set")
 
     # Check if credentials are set
     if BOT_TOKEN == "YOUR_BOT_TOKEN" or CHAT_ID == "YOUR_CHAT_ID":
