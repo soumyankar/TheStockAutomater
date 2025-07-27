@@ -2,14 +2,14 @@ name: Portfolio Automation Workflow
 
 on:
   schedule:
-    # Run every day at 9:00 AM UTC (adjust timezone as needed)
-    - cron: '0 9 * * *'
+    # Run every day at 10:30 AM Eastern Time (14:30 UTC during DST)
+    - cron: '30 14 * * *'
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
   portfolio-analysis:
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -32,31 +32,244 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Create logs directory
-      run: mkdir -p logs
+    - name: Create required directories
+      run: |
+        mkdir -p logs
+        mkdir -p exports
 
-    - name: Run portfolio automation
+    - name: Initialize workflow logging
+      run: |
+        echo "============================================================" | tee -a logs/workflow.log
+        echo "STARTING PORTFOLIO AUTOMATION WORKFLOW" | tee -a logs/workflow.log
+        echo "Timestamp: $(date)" | tee -a logs/workflow.log
+        echo "============================================================" | tee -a logs/workflow.log
+
+    # STEP 1: Portfolio Analyzer
+    - name: "📋 STEP 1/3: Portfolio Analysis"
+      id: portfolio_analysis
       env:
         PYTHONIOENCODING: utf-8
         PYTHONUTF8: 1
-        # Add your secrets here - set these in GitHub repository settings
         PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      run: python portfolio_automation.py
+      run: |
+        echo "----------------------------------------" | tee -a logs/workflow.log
+        echo "📋 STEP 1/3: portfolio_analyzer.py" | tee -a logs/workflow.log
+        echo "Starting execution: Portfolio data processing and summary generation" | tee -a logs/workflow.log
+        echo "Command: python portfolio_analyzer.py" | tee -a logs/workflow.log
+        echo "Timestamp: $(date)" | tee -a logs/workflow.log
+        echo "----------------------------------------" | tee -a logs/workflow.log
+        
+        start_time=$(date +%s)
+        
+        # Run the script and capture both stdout and stderr
+        if python portfolio_analyzer.py 2>&1 | tee -a logs/portfolio_analyzer.log; then
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          echo "✅ portfolio_analyzer.py completed successfully" | tee -a logs/workflow.log
+          echo "Step 1 duration: ${duration} seconds" | tee -a logs/workflow.log
+          echo "step1_success=true" >> $GITHUB_OUTPUT
+        else
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          echo "❌ portfolio_analyzer.py failed" | tee -a logs/workflow.log
+          echo "Step 1 duration: ${duration} seconds" | tee -a logs/workflow.log
+          echo "step1_success=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
 
-    - name: Upload logs as artifacts
+    - name: Wait after portfolio analysis
+      if: steps.portfolio_analysis.outputs.step1_success == 'true'
+      run: |
+        echo "Waiting for portfolio_analyzer.py to complete file operations..." | tee -a logs/workflow.log
+        sleep 15
+        echo "Wait period completed" | tee -a logs/workflow.log
+
+    # STEP 2: Perplexity Analyzer
+    - name: "🤖 STEP 2/3: AI Analysis via Perplexity"
+      id: perplexity_analysis
+      if: steps.portfolio_analysis.outputs.step1_success == 'true'
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
+        PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: |
+        echo "----------------------------------------" | tee -a logs/workflow.log
+        echo "🤖 STEP 2/3: perplexity_analyzer.py" | tee -a logs/workflow.log
+        echo "Starting execution: AI analysis via Perplexity API" | tee -a logs/workflow.log
+        echo "Command: python perplexity_analyzer.py" | tee -a logs/workflow.log
+        echo "Timestamp: $(date)" | tee -a logs/workflow.log
+        echo "----------------------------------------" | tee -a logs/workflow.log
+        
+        start_time=$(date +%s)
+        
+        # Run the script and capture both stdout and stderr
+        if python perplexity_analyzer.py 2>&1 | tee -a logs/perplexity_analyzer.log; then
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          echo "✅ perplexity_analyzer.py completed successfully" | tee -a logs/workflow.log
+          echo "Step 2 duration: ${duration} seconds" | tee -a logs/workflow.log
+          echo "step2_success=true" >> $GITHUB_OUTPUT
+        else
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          echo "❌ perplexity_analyzer.py failed" | tee -a logs/workflow.log
+          echo "Step 2 duration: ${duration} seconds" | tee -a logs/workflow.log
+          echo "step2_success=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+    - name: Wait after perplexity analysis
+      if: steps.perplexity_analysis.outputs.step2_success == 'true'
+      run: |
+        echo "Waiting for perplexity_analyzer.py to complete file operations..." | tee -a logs/workflow.log
+        sleep 15
+        echo "Wait period completed" | tee -a logs/workflow.log
+
+    # STEP 3: Portfolio Notifier
+    - name: "📱 STEP 3/3: Telegram Notification"
+      id: notification
+      if: steps.perplexity_analysis.outputs.step2_success == 'true'
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
+        PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: |
+        echo "----------------------------------------" | tee -a logs/workflow.log
+        echo "📱 STEP 3/3: portfolio_notifier.py" | tee -a logs/workflow.log
+        echo "Starting execution: Telegram notification delivery" | tee -a logs/workflow.log
+        echo "Command: python portfolio_notifier.py" | tee -a logs/workflow.log
+        echo "Timestamp: $(date)" | tee -a logs/workflow.log
+        echo "----------------------------------------" | tee -a logs/workflow.log
+        
+        start_time=$(date +%s)
+        
+        # Run the script and capture both stdout and stderr
+        if python portfolio_notifier.py 2>&1 | tee -a logs/portfolio_notifier.log; then
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          echo "✅ portfolio_notifier.py completed successfully" | tee -a logs/workflow.log
+          echo "Step 3 duration: ${duration} seconds" | tee -a logs/workflow.log
+          echo "step3_success=true" >> $GITHUB_OUTPUT
+        else
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          echo "❌ portfolio_notifier.py failed" | tee -a logs/workflow.log
+          echo "Step 3 duration: ${duration} seconds" | tee -a logs/workflow.log
+          echo "step3_success=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+    - name: Wait after notification
+      if: steps.notification.outputs.step3_success == 'true'
+      run: |
+        echo "Waiting for portfolio_notifier.py to complete file operations..." | tee -a logs/workflow.log
+        sleep 15
+        echo "Final wait period completed" | tee -a logs/workflow.log
+
+    # Workflow Summary
+    - name: Generate workflow summary
+      if: always()
+      run: |
+        echo "============================================================" | tee -a logs/workflow.log
+        echo "WORKFLOW SUMMARY" | tee -a logs/workflow.log
+        echo "============================================================" | tee -a logs/workflow.log
+        echo "Completion timestamp: $(date)" | tee -a logs/workflow.log
+        
+        # Check results and generate summary
+        step1_result="${{ steps.portfolio_analysis.outputs.step1_success }}"
+        step2_result="${{ steps.perplexity_analysis.outputs.step2_success }}"
+        step3_result="${{ steps.notification.outputs.step3_success }}"
+        
+        echo "portfolio_analyzer.py: $([ "$step1_result" = "true" ] && echo "✅ SUCCESS" || echo "❌ FAILED")" | tee -a logs/workflow.log
+        echo "perplexity_analyzer.py: $([ "$step2_result" = "true" ] && echo "✅ SUCCESS" || echo "❌ FAILED")" | tee -a logs/workflow.log
+        echo "portfolio_notifier.py: $([ "$step3_result" = "true" ] && echo "✅ SUCCESS" || echo "❌ FAILED")" | tee -a logs/workflow.log
+        
+        # Calculate success rate
+        success_count=0
+        [ "$step1_result" = "true" ] && success_count=$((success_count + 1))
+        [ "$step2_result" = "true" ] && success_count=$((success_count + 1))
+        [ "$step3_result" = "true" ] && success_count=$((success_count + 1))
+        
+        echo "" | tee -a logs/workflow.log
+        echo "Success rate: ${success_count}/3 scripts" | tee -a logs/workflow.log
+        
+        if [ $success_count -eq 3 ]; then
+          echo "🎉 WORKFLOW COMPLETED SUCCESSFULLY!" | tee -a logs/workflow.log
+        else
+          failed_count=$((3 - success_count))
+          echo "⚠️ WORKFLOW COMPLETED WITH ${failed_count} FAILURES" | tee -a logs/workflow.log
+        fi
+
+    # Upload individual script logs
+    - name: Upload individual script logs
       uses: actions/upload-artifact@v4
-      if: always()  # Upload logs even if the workflow fails
+      if: always()
       with:
-        name: workflow-logs
-        path: logs/
+        name: individual-script-logs
+        path: |
+          logs/portfolio_analyzer.log
+          logs/perplexity_analyzer.log
+          logs/portfolio_notifier.log
         retention-days: 30
 
-    - name: Upload exports as artifacts
+    # Upload workflow logs
+    - name: Upload workflow logs
       uses: actions/upload-artifact@v4
-      if: success()  # Only upload if workflow succeeds
+      if: always()
+      with:
+        name: workflow-logs
+        path: logs/workflow.log
+        retention-days: 30
+
+    # Upload exports (only on success)
+    - name: Upload portfolio exports
+      uses: actions/upload-artifact@v4
+      if: steps.notification.outputs.step3_success == 'true'
       with:
         name: portfolio-exports
         path: exports/
         retention-days: 7
+
+    # Send workflow status notification (optional)
+    - name: Send workflow status notification
+      if: always() && env.TELEGRAM_BOT_TOKEN != ''
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: |
+        # Determine overall status
+        step1_result="${{ steps.portfolio_analysis.outputs.step1_success }}"
+        step2_result="${{ steps.perplexity_analysis.outputs.step2_success }}"
+        step3_result="${{ steps.notification.outputs.step3_success }}"
+        
+        if [ "$step1_result" = "true" ] && [ "$step2_result" = "true" ] && [ "$step3_result" = "true" ]; then
+          status_emoji="🎉"
+          status_text="SUCCESS"
+        else
+          status_emoji="⚠️"
+          status_text="FAILED"
+        fi
+        
+        # Send status notification
+        message="${status_emoji} Portfolio Automation Workflow ${status_text}
+        
+        📊 Results:
+        • Portfolio Analysis: $([ "$step1_result" = "true" ] && echo "✅" || echo "❌")
+        • AI Analysis: $([ "$step2_result" = "true" ] && echo "✅" || echo "❌")  
+        • Notification: $([ "$step3_result" = "true" ] && echo "✅" || echo "❌")
+        
+        🕒 Completed: $(date -u)
+        
+        View details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        
+        # Send via curl (optional - only if you want workflow status notifications)
+        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+          -d chat_id="${TELEGRAM_CHAT_ID}" \
+          -d text="$message" \
+          -d parse_mode="HTML" || echo "Failed to send workflow status notification"
